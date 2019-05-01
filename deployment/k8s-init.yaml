@@ -19,6 +19,10 @@ spec:
         backend:
           serviceName: simon-denel-fr
           servicePort: http
+      - path: /updating-endpoint
+        backend:
+          serviceName: simon-denel-fr-updater
+          servicePort: http
 ---
 apiVersion: v1
 kind: Service
@@ -54,7 +58,87 @@ spec:
         ports:
         - containerPort: 80
           name: http
-# ---
-# TODO créer l'image via Docker hub
-# TODO utilisateur qui a le droit de changer le déploiement
-# TODO trigger post image création ? Utiliser shell2bash avec -form (https://github.com/msoap/shell2http/) + curl de l'API Server
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: simon-denel-fr-updater
+  namespace: simon-denel-fr
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: simon-denel-fr-updater
+  namespace: simon-denel-fr
+rules:
+- apiGroups: ["extensions", "apps"]
+  resources: ["deployments"]
+  resourceNames: ["simon-denel-fr"]
+  verbs: ["patch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: simon-denel-fr-updater
+  namespace: simon-denel-fr
+subjects:
+- kind: ServiceAccount
+  name: simon-denel-fr-updater
+roleRef:
+  kind: Role
+  name: simon-denel-fr-updater
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simon-denel-fr-updater
+  namespace: simon-denel-fr
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: simon-denel-fr-updater
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simon-denel-fr-updater
+  namespace: simon-denel-fr
+spec:
+  selector:
+    matchLabels:
+      app: simon-denel-fr-updater
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: simon-denel-fr-updater
+    spec:
+      serviceAccountName: simon-denel-fr-updater
+      containers:
+      - image: ubuntu:latest
+        name: nginx
+        command: ["/bin/bash"]
+        args:
+          - "-c"
+          - |
+            apt update && \
+            apt install -y wget curl && \
+            wget https://github.com/msoap/shell2http/releases/download/1.13/shell2http_1.13_amd64.deb && \
+            dpkg -i shell2http_1.13_amd64.deb && \
+            export TOKEN="`cat /run/secrets/kubernetes.io/serviceaccount/token`"
+            shell2http -export-all-vars -port 80 -basic-auth dockerhub:$DOCKER_HUB_PWD -form /updating-endpoint 'curl --cacert /run/secrets/kubernetes.io/serviceaccount/ca.crt -X PATCH -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/merge-patch+json" --data-binary "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" "https://$KUBERNETES_SERVICE_HOST/apis/apps/v1/namespaces/simon-denel-fr/deployments/simon-denel-fr"'      
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+          # kubectl -n simon-denel-fr create secret generic simon-denel-fr-updater --from-literal="DOCKER_HUB_PWD=`uuidgen`"
+          # Récupération : k -n simon-denel-fr get secrets simon-denel-fr-updater -o json | jq -r .data.DOCKER_HUB_PWD | base64 -d
+          - name: DOCKER_HUB_PWD
+            valueFrom:
+              secretKeyRef:
+                name: simon-denel-fr-updater
+                key: DOCKER_HUB_PWD

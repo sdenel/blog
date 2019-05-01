@@ -1,0 +1,60 @@
+# Lancé uniquement à l'init (pas dans la CICD)
+# k apply -f k8s-init.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: simon-denel-fr
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: simon-denel-fr
+  namespace: simon-denel-fr
+spec:
+  rules:
+  - host: simon.denel.fr
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: simon-denel-fr
+          servicePort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simon-denel-fr
+  namespace: simon-denel-fr
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: simon-denel-fr
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simon-denel-fr
+  namespace: simon-denel-fr
+spec:
+  selector:
+    matchLabels:
+      app: simon-denel-fr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: simon-denel-fr
+    spec:
+      containers:
+      - image: sdenel/blog
+        name: nginx
+        ports:
+        - containerPort: 80
+          name: http
+# ---
+# TODO créer l'image via Docker hub
+# TODO utilisateur qui a le droit de changer le déploiement
+# TODO trigger post image création ? Utiliser shell2bash avec -form (https://github.com/msoap/shell2http/) + curl de l'API Server

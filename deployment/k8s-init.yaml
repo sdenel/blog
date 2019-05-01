@@ -46,7 +46,11 @@ spec:
     matchLabels:
       app: simon-denel-fr
   strategy:
-    type: Recreate
+    # Pour controler que la MEP se fait sans downtime : while [ true ]; do date; curl -D - simon.denel.fr 2>&1 | grep HTTP; done
+    # TODO : sortir la version dans un header ?
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
   template:
     metadata:
       labels:
@@ -58,6 +62,10 @@ spec:
         ports:
         - containerPort: 80
           name: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -125,10 +133,10 @@ spec:
         args:
           - "-c"
           - |
-            apt update && \
-            apt install -y wget curl && \
-            wget https://github.com/msoap/shell2http/releases/download/1.13/shell2http_1.13_amd64.deb && \
-            dpkg -i shell2http_1.13_amd64.deb && \
+            apt update
+            apt install -y wget curl
+            wget https://github.com/msoap/shell2http/releases/download/1.13/shell2http_1.13_amd64.deb
+            dpkg -i shell2http_1.13_amd64.deb
             export TOKEN="`cat /run/secrets/kubernetes.io/serviceaccount/token`"
             shell2http -export-all-vars -port 80 -basic-auth dockerhub:$DOCKER_HUB_PWD -form /updating-endpoint 'curl --cacert /run/secrets/kubernetes.io/serviceaccount/ca.crt -X PATCH -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/merge-patch+json" --data-binary "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" "https://$KUBERNETES_SERVICE_HOST/apis/apps/v1/namespaces/simon-denel-fr/deployments/simon-denel-fr"'      
         ports:

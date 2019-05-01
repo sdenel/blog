@@ -9,7 +9,8 @@ import ruamel.yaml as yaml
 import jinja2
 import unidecode
 
-shutil.rmtree("target")
+if os.path.exists("target"):
+    shutil.rmtree("target")
 os.mkdir("target")
 
 

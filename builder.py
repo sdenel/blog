@@ -8,6 +8,7 @@ from pprint import pprint
 import ruamel.yaml as yaml
 import jinja2
 import unidecode
+from distutils.dir_util import copy_tree
 
 if os.path.exists("target"):
     shutil.rmtree("target")
@@ -80,6 +81,7 @@ def main():
             title="Accueil"
         ))
 
+    copy_tree("static", "target")
 
 if __name__ == "__main__":
     main()

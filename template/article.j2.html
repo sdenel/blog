@@ -1,10 +1,10 @@
 {% extends 'template/template.j2.html' %}
 {% block content %}
-<a href="/" />Index</a>
+<a href="/" />Accueil</a>
 <h1 id="main-title">{{title}}</h1>
 <div id="menu">
     Auteurs : <a href="https://github.com/sdenel/" target="_blank" rel="noopener">Simon Denel</a> | <a
-        href="https://github.com/sdenel/blog">Proposer une amélioration sur Github</a>
+        href="https://github.com/sdenel/blog/tree/master/{{rawLink}}">Proposer une amélioration sur Github</a>
 </div>
 {{content}}
 {% endblock %}

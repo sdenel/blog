@@ -58,13 +58,15 @@ def main():
                     print(f"Please rename {article_html_path} to {title_as_filename}")
                     exit(1)
 
-                subprocess.run(["pandoc", article_md_path, "--highlight-style", "pygments", "-o", article_html_pandoc_path])
+                subprocess.run(
+                    ["pandoc", article_md_path, "--highlight-style", "pygments", "-o", article_html_pandoc_path])
                 print(f"Creating {article_html_path}")
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(
                         title=article_yaml['title'],
                         description=article_yaml['description'],
-                        content=get_file_content(article_html_pandoc_path)
+                        content=get_file_content(article_html_pandoc_path),
+                        rawLink=article_md_path
                     ))
 
                 os.remove(article_html_pandoc_path)
@@ -82,6 +84,7 @@ def main():
         ))
 
     copy_tree("static", "target")
+
 
 if __name__ == "__main__":
     main()

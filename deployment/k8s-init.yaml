@@ -138,7 +138,7 @@ spec:
             wget https://github.com/msoap/shell2http/releases/download/1.13/shell2http_1.13_amd64.deb
             dpkg -i shell2http_1.13_amd64.deb
             export TOKEN="`cat /run/secrets/kubernetes.io/serviceaccount/token`"
-            shell2http -export-all-vars -port 80 -basic-auth dockerhub:$DOCKER_HUB_PWD /updating-endpoint 'curl --cacert /run/secrets/kubernetes.io/serviceaccount/ca.crt -X PATCH -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/merge-patch+json" --data-binary "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" "https://$KUBERNETES_SERVICE_HOST/apis/apps/v1/namespaces/simon-denel-fr/deployments/simon-denel-fr"'
+            shell2http -export-all-vars -port 80 -basic-auth dockerhub:$DOCKER_HUB_PWD /updating-endpoint 'curl --cacert /run/secrets/kubernetes.io/serviceaccount/ca.crt -X PATCH -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/merge-patch+json" --data-binary "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" "https://$KUBERNETES_SERVICE_HOST/apis/apps/v1/namespaces/simon-denel-fr/deployments/simon-denel-fr" && curl -s -X POST https://api.telegram.org/$TELEGRAM_BOT_ID/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="Rotation des pods sur simon.denel.fr"'
         ports:
         - containerPort: 80
           name: http
@@ -150,3 +150,13 @@ spec:
               secretKeyRef:
                 name: simon-denel-fr-updater
                 key: DOCKER_HUB_PWD
+          - name: TELEGRAM_BOT_ID
+            valueFrom:
+              secretKeyRef:
+                name: simon-denel-fr-updater
+                key: TELEGRAM_BOT_ID
+          - name: TELEGRAM_CHAT_ID
+            valueFrom:
+              secretKeyRef:
+                name: simon-denel-fr-updater
+                key: TELEGRAM_CHAT_ID

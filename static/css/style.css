@@ -15,15 +15,26 @@ body {
     font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
     font-size: 12px;
     line-height: 1.7;
-    padding: 1em;
+    padding: 0em 1em 0px;
     margin: auto;
     /*padding-top: 0px;*/
     max-width: 54em;
     background: #fefefe;
 }
 
-#main-title {
-    margin-top: 10px;
+
+header {
+    margin-left: -1em;
+    margin-right: -1em;
+    margin-top: -150px;
+    height: 430px;
+    overflow: hidden;
+}
+
+header img {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    width: 100%;
 }
 
 a {
@@ -75,7 +86,7 @@ img {
     max-width: 100%;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, h1 a:visited, h2 a:visited {
     color: #111;
     line-height: 125%;
     margin-top: 2em;
@@ -87,15 +98,16 @@ h4, h5, h6 {
 }
 
 h1 {
-    font-size: 2.5em;
+    font-size: 1.8em;
+    margin-top: 15px;
 }
 
 h2 {
-    font-size: 2em;
+    font-size: 1.6em;
 }
 
 h3 {
-    font-size: 1.5em;
+    font-size: 1.4em;
 }
 
 h4 {
@@ -254,6 +266,11 @@ table td {
 .author {
     font-size: 1.2em;
     text-align: center;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.6em;
 }
 
 @media only screen and (min-width: 480px) {

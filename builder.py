@@ -5,10 +5,14 @@ import subprocess
 
 from pprint import pprint
 
+import time
 import ruamel.yaml as yaml
 import jinja2
 import unidecode
 from distutils.dir_util import copy_tree
+import locale
+
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 if os.path.exists("target"):
     shutil.rmtree("target")
@@ -21,7 +25,7 @@ def get_file_content(p):
 
 
 def title_to_filename(t):
-    t = t.replace(" ", "-").replace(":", "-").replace(",", "-").replace(".", "-")
+    t = t.replace(" ", "-").replace(":", "-").replace(",", "-").replace(".", "-").replace("'", "-")
     while t.find("--") > -1:
         t = t.replace("--", "-")
     t = t.strip(".-")
@@ -33,6 +37,8 @@ def main():
     articles = []
     # os.mkdir("target")
     j2_env = jinja2.Environment(loader=jinja2.FileSystemLoader("."), trim_blocks=True)
+    j2_env.globals["generationDate"] = time.strftime('%A %d/%m/%Y %H:%M:%S')
+
     for root, dirs, files in os.walk("src/"):
         for file in files:
             if file.endswith(".yaml"):
@@ -59,7 +65,7 @@ def main():
                     exit(1)
 
                 subprocess.run(
-                    ["pandoc", article_md_path, "--highlight-style", "pygments", "-o", article_html_pandoc_path])
+                    ["pandoc", article_md_path, "-o", article_html_pandoc_path])
                 print(f"Creating {article_html_path}")
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(

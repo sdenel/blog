@@ -2,7 +2,7 @@ Le standard DynDNS permet de mettre à jour une entrée DNS de manière automati
 
 # Installation du client sous Debian / Ubuntu
 ```bash
-apt-get install ddclient
+apt install ddclient
 ```
 
 Modifier le fichier vim /etc/ddclient.conf. Exemple pour du DnyDNS via noip :

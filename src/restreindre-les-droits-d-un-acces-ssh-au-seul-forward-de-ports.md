@@ -1,8 +1,9 @@
 Exemple de cas d'usage :
-   * Un service ne sert que sur localhost (pour des raisons de sécurité).
-   * Un autre service (userB sur serverB) souhaite accéder à ce service
-   * Une commande du type `ssh -L8080:localhost:8080 userA@serveurA` permet à l'utilisateur B d'obtenir, sur son port 8080, le service exposé par serverA
-   * Comment restreindre les droits de l'utilisateur B sur le serveur A ?
+
+* Un service ne sert que sur localhost (pour des raisons de sécurité).
+* Un autre service (userB sur serverB) souhaite accéder à ce service
+* Une commande du type `ssh -L8080:localhost:8080 userA@serveurA` permet à l'utilisateur B d'obtenir, sur son port 8080, le service exposé par serverA
+* Comment restreindre les droits de l'utilisateur B sur le serveur A ?
 
 Exemples pratiques : Api Server de Kubernetes protégé des accès via internet
 

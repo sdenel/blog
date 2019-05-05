@@ -89,6 +89,12 @@ def main():
             title="Accueil"
         ))
 
+    print(f"Creating sitemap.xml")
+    with open("target/sitemap.xml", 'w', encoding='utf8') as stream:
+        stream.write(j2_env.get_template('template/sitemap.j2.xml').render(
+            articles=articles,
+        ))
+
     copy_tree("static", "target")
 
 

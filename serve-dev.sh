@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+
+docker pull sdenel/blog-builder
+
 while true; do
     docker build . -t blog
     docker rm -f blog-container || true

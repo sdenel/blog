@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import datetime
 import os
 import shutil
 import subprocess
@@ -33,6 +34,22 @@ def title_to_filename(t):
     return t.lower() + ".html"
 
 
+def get_file_creation_modification_date(f):
+    git_process = subprocess.run(f"git log --date=iso --diff-filter=A -- {f}".split(" "), stdout=subprocess.PIPE)
+    stdout = git_process.stdout.decode('utf-8')
+    lines = stdout.split("\n")
+    dates_raw = [x for x in lines if x.startswith("Date:")]
+    # "Date:   2019-05-01 20:26:47 +0200" -> "2019-05-01 20:26:47 +0200"
+    dates_str = [x[x.find(':') + 1:].strip() for x in dates_raw]
+    dates = [datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S %z") for x in dates_str]
+    print(dates)
+    return dates[0], dates[-1]
+
+
+def date_to_str(d):
+    return d.strftime('%d/%m/%Y')
+
+
 def main():
     articles = []
     # os.mkdir("target")
@@ -47,6 +64,8 @@ def main():
                 assert os.path.isfile(
                     article_md_path), f"{article_yaml_path} found without its .md! ({article_md_path})"
                 print(article_yaml_path)
+
+                creation_date, modification_date = get_file_creation_modification_date(article_md_path)
 
                 with open(article_yaml_path, 'r', encoding='utf8') as stream:
                     # content = stream.read()
@@ -70,6 +89,8 @@ def main():
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(
                         title=article_yaml['title'],
+                        creation_date_str=date_to_str(creation_date),
+                        modification_date_str=date_to_str(modification_date),
                         description=article_yaml['description'],
                         content=get_file_content(article_html_pandoc_path),
                         rawLink=article_md_path
@@ -79,8 +100,12 @@ def main():
                 articles.append({
                     "title": article_yaml['title'],
                     "description": article_yaml['description'],
-                    "path": article_html_path[article_html_path.find("target/") + 7:]
+                    "path": article_html_path[article_html_path.find("target/") + 7:],
+                    "creation_date": creation_date,
+                    "modification_date": modification_date
                 })
+
+    articles.sort(key=lambda a: a['creation_date'], reverse=True)
 
     print(f"Creating index.html")
     with open("target/index.html", 'w', encoding='utf8') as stream:

@@ -16,29 +16,32 @@
 
 
 <script>
-$(function() {
-    $("pre > code").each(function(i, block) {
-        var codeClass = $(this).parent().attr("class");
-        if (codeClass == null || codeClass === "") {
-            $(this).addClass("hljs");
-        } else {
-            var map = {
-                js: "javascript"
-            };
-            if (map[codeClass]) {
-                codeClass = map[codeClass];
+    $(function () {
+        $("pre > code").each(function (i, block) {
+            var codeClass = $(this).parent().attr("class");
+            if (codeClass == null || codeClass === "") {
+                $(this).addClass("hljs");
+            } else {
+                var map = {
+                    js: "javascript"
+                };
+                if (map[codeClass]) {
+                    codeClass = map[codeClass];
+                }
+                $(this).addClass(codeClass);
+                hljs.highlightBlock(this);
             }
-            $(this).addClass(codeClass);
-            hljs.highlightBlock(this);
-        }
+        });
     });
-});
 </script>
 
 <a href="/"/>Accueil</a>
-<h1 id="main-title">{{title}}</h1>
+<h1 id="article-main-title">{{title}}</h1>
 <div id="menu">
-    Auteurs : <a href="https://github.com/sdenel/" target="_blank" rel="noopener">Simon Denel</a> | <a
+    Auteurs : <a href="https://github.com/sdenel/" target="_blank" rel="noopener">Simon Denel</a> | Création le
+    {{creation_date_str}} | dernière modification le {{modification_date_str}}<br/><a href="#"
+                                                                                      onclick="window.print();">Imprimer</a>
+    | <a
         href="https://github.com/sdenel/blog/tree/master/{{rawLink}}" target="_blank" rel="noopener">Proposer une
     amélioration sur Github</a>
 </div>

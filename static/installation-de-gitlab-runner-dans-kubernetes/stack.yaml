@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitlab-runner
+  labels:
+    name: gitlab-runner # Permet la selection dans une NetworkPolicy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-runner-sa
+  namespace: gitlab-runner
+---
+# Donne les droits admin sur le *namespace* (RoleBinding d'un ClusterRole)
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gitlab-runner-sa-rb
+  namespace: gitlab-runner
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-runner-sa
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin # Existe par défaut
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab-runner
+  namespace: gitlab-runner
+spec:
+  selector:
+    matchLabels:
+      app: gitlab-runner
+  template:
+    metadata:
+      labels:
+        app: gitlab-runner
+    spec:
+      serviceAccountName: gitlab-runner-sa
+      containers:
+        - image: gitlab/gitlab-runner:alpine
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              gitlab-runner register \
+              --non-interactive --url=https://gitlab.com/ --registration-token="$GITLAB_RUNNER_TOKEN" \
+              --executor=kubernetes --docker-image=alpine:latest --description=docker-runner \
+              --tag-list="" --run-untagged=true --locked=false \
+              --kubernetes-namespace=gitlab-runner --kubernetes-privileged \
+              --cache-type s3 --cache-shared --cache-s3-insecure \
+              --cache-s3-server-address=minio:9000 --cache-s3-bucket-name=gitlab-runner \
+              --cache-s3-access-key=admin --cache-s3-secret-key=password &&
+              # impossible de faire autrement pour changer la concurrency lors de l'ecriture de ces lignes \
+              sed -i -e "s|concurrent = 1|concurrent = 10|g" /etc/gitlab-runner/config.toml &&
+              gitlab-runner run
+          env:
+            - name: GITLAB_RUNNER_TOKEN
+              # kubectl -n gitlab-runner create secret generic gitlab-runner --from-literal="TOKEN=tototo"
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-runner
+                  key: TOKEN
+          lifecycle:
+            preStop:
+              exec:
+                command: ["gitlab-runner", "unregister", "--all-runners"]
+          name: gitlab-runner
+---
+#
+# Minio : une unique instance, sans persistance des données (vocation à etre utilisé en tant que cache)
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: gitlab-runner
+spec:
+  ports:
+    - port: 9000
+      name: http
+  selector:
+    app: minio
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: gitlab-runner
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - image: minio/minio
+          name: minio
+          args: ["server", "/data"]
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: admin
+            - name: MINIO_SECRET_KEY
+              value: password
+          ports:
+            - containerPort: 9000
+              name: http
+          lifecycle:
+            postStart:
+              exec:
+                command: ["mkdir", "/data/gitlab-runner"] # Creer une bucket. voir https://github.com/minio/minio/issues/4769
+---
+#
+# Isolation des pods du namespace :
+# Les pods de ce namespace ne doivent pas pouvoir accéder au reste du cluster (IPs privées) excepté à l'API Server
+# (en cas d'utilisation de la CICD de Gitlab pour effectuer des déploiements en interne au cluster)
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  namespace: gitlab-runner
+  name: deny-other-namespaces-access
+spec:
+  podSelector: {} # Tous les pods du namespace
+  policyTypes:
+    - Egress
+  egress:
+    # Aucun accès aux autres pods
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: # Voir https://fr.wikipedia.org/wiki/R%C3%A9seau_priv%C3%A9
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/24
+      ports:
+        - protocol: TCP
+          port: 80 # http
+        - protocol: TCP
+          port: 443 # https
+        - protocol: TCP
+          port: 6443 # API Server
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: gitlab-runner
+          podSelector:
+            matchLabels:
+              app: minio
+      ports:
+        - protocol: TCP
+          port: 9000
+
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system # kubectl label namespace/kube-system name=kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53

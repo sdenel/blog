@@ -41,6 +41,8 @@ def get_file_creation_modification_date(f):
     dates_raw = [x for x in lines if x.startswith("Date:")]
     # "Date:   2019-05-01 20:26:47 +0200" -> "2019-05-01 20:26:47 +0200"
     dates_str = [x[x.find(':') + 1:].strip() for x in dates_raw]
+    if len(dates_str) == 0: # Pas encore sous Git
+        dates_str = "2099-05-01 20:26:47 +0200", "2099-05-01 20:26:47 +0200"
     dates = [datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S %z") for x in dates_str]
     print(dates)
     return dates[0], dates[-1]

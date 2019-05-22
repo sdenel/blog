@@ -167,7 +167,7 @@ kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
   namespace: simon-denel-fr
-  name: deny-from-other-namespaces
+  name: simon-denel-fr-updater-np
 spec:
   podSelector:
     matchLabels:

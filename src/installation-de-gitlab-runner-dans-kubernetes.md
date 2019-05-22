@@ -10,6 +10,7 @@
 * Dans mon cas : c'est le seul moyen (simple) de permettre aux jobs de joindre l'API Server de Kubernetes
 
 # Ma stack de déploiement
+* Voir également : http://simon.denel.fr/installation-de-gitlab-runner-dans-kubernetes/stack.yaml
 * Cache distribué :
     * L'utilisation du cache (qui permet la mise en cache, par exemple, du téléchargement des dépendances dans les pipelines) nécessite d'utiliser AWS S3 ou un équivalent compatible.
     * D'ou l'instanciation de MinIO en local au cluster, sans recherche de High Availability ou de persistence (ce n'est qu'un cache !).

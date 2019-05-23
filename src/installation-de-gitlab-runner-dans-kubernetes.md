@@ -28,4 +28,5 @@
 kubectl -n gitlab-runner port-forward svc/minio 9000:9000
 ```
 Puis utilisez votre naviguateur : localhost:9000/
+
 * Pour les adeptes de Helm, voir également : https://gitlab.com/charts/gitlab-runner/tree/master

@@ -1,6 +1,6 @@
 * L'agent de Gitlab (gitlab-runner) peut etre instancié dans votre propre infrastructure
 * C'est d'ailleurs un bon moyen de permettre, depuis gitlab.com, d'effectuer des déploiements sur votre infrastructure :
-    * Les proxys ne posent pas de problème de configuration: gitlab-runner établit une connection TCP permanente avec le serveur, d'ou l'absnece de pb
+    * Les proxys ne posent pas de problème de configuration: gitlab-runner établit une connection TCP permanente avec le serveur.
     * Vous pouvez ne permettre l'utilisation d'un runner que sur les branches protected
     
 # Pourquoi Gitlab Runner dans Kubernetes ?

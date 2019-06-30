@@ -5,7 +5,7 @@ Le standard DynDNS permet de mettre à jour une entrée DNS de manière automati
 apt install ddclient
 ```
 
-Modifier le fichier vim /etc/ddclient.conf. Exemple pour du DnyDNS via noip :
+Modifier le fichier vim /etc/ddclient.conf. Exemple pour du DynDNS via noip :
 ```
 protocol=dyndns2
 use=web
@@ -18,7 +18,7 @@ violette.hopto.org
 
 * Server :
   * www.noip.com pour hopto.org, ...
-  * www.ovh.com pour le DnyDNS de OVH (il est possible sur OVH de créer des identifiants spécifiques pour une entrée DnyDNS)
+  * www.ovh.com pour le DynDNS de OVH (il est possible sur OVH de créer des identifiants spécifiques pour une entrée DnyDNS)
 
 # Pour tester
 ```bash

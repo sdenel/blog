@@ -4,7 +4,7 @@ set -e
 docker pull sdenel/blog-builder
 
 while true; do
-    docker build . -t blog
+    docker build --build-arg COMPILATION_MODE=DEV . -t blog
     docker rm -f blog-container || true
     docker run -d --name blog-container -p0.0.0.0:8080:80 blog
     # Moyen d'être prévenu de manière audio lorsque le conteneur est redéployé

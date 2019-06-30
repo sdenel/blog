@@ -1,0 +1,16 @@
+{% extends 'template/template.j2.html' %}
+{% block content %}
+<style>
+    p:not(:last-child) {
+        padding-bottom: 10px;
+        border-bottom: 1px #B0B0B0 solid;
+    }
+</style>
+<div>
+    {% for article in articles %}
+    <h1>{{article["title"]}}</h1>
+    <p>{{article["content_as_html"]}}</p>
+    <p>{{article["description"]}}</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -12,6 +12,7 @@ import jinja2
 import unidecode
 from distutils.dir_util import copy_tree
 import locale
+from os.path import isfile
 
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
@@ -26,6 +27,9 @@ def get_file_content(p):
 
 
 def title_to_filename(t):
+    """
+    Transforms a title into a URL compliant filename
+    """
     t = t.replace(" ", "-").replace(":", "-").replace(",", "-").replace(".", "-").replace("'", "-")
     while t.find("--") > -1:
         t = t.replace("--", "-")
@@ -35,13 +39,17 @@ def title_to_filename(t):
 
 
 def get_file_creation_modification_date(f):
+    """
+    Get the date of the creation and latest modification of a file, according to git.
+    Output: a tuple of of dates in the Python datetime format.
+    """
     git_process = subprocess.run(f"git log --date=iso --diff-filter=A -- {f}".split(" "), stdout=subprocess.PIPE)
     stdout = git_process.stdout.decode('utf-8')
     lines = stdout.split("\n")
     dates_raw = [x for x in lines if x.startswith("Date:")]
     # "Date:   2019-05-01 20:26:47 +0200" -> "2019-05-01 20:26:47 +0200"
     dates_str = [x[x.find(':') + 1:].strip() for x in dates_raw]
-    if len(dates_str) == 0: # Pas encore sous Git
+    if len(dates_str) == 0:  # The file is not commited yet
         dates_str = "2099-05-01 20:26:47 +0200", "2099-05-01 20:26:47 +0200"
     dates = [datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S %z") for x in dates_str]
     print(dates)
@@ -50,6 +58,14 @@ def get_file_creation_modification_date(f):
 
 def date_to_str(d):
     return d.strftime('%d/%m/%Y')
+
+
+def markdown_to_html(md_path):
+    html_pandoc_path = os.path.join("target", md_path[4:-3] + "_pandoc.html")
+    subprocess.run(["pandoc", md_path, "-o", html_pandoc_path])
+    html = get_file_content(html_pandoc_path)
+    os.remove(html_pandoc_path)
+    return html
 
 
 def main():
@@ -63,8 +79,7 @@ def main():
             if file.endswith(".yaml"):
                 article_yaml_path = os.path.join(root, file)
                 article_md_path = os.path.join(root, file[:-5] + ".md")
-                assert os.path.isfile(
-                    article_md_path), f"{article_yaml_path} found without its .md! ({article_md_path})"
+                assert isfile(article_md_path), f"{article_yaml_path} found without its .md! ({article_md_path})"
                 print(article_yaml_path)
 
                 creation_date, modification_date = get_file_creation_modification_date(article_md_path)
@@ -77,16 +92,19 @@ def main():
                     assert 'description' in article_yaml, f"{article_yaml_path} does not contain a description."
 
                 pprint(article_yaml["title"])
-                article_html_pandoc_path = os.path.join("target", article_md_path[4:-3] + "_pandoc.html")
+
                 article_html_path = os.path.join("target", article_md_path[4:-3] + ".html")
 
+                #
+                # Check that the file is named according to its content title, or throw.
+                #
                 title_as_filename = title_to_filename(article_yaml['title'])
                 if not article_html_path.endswith(title_as_filename):
                     print(f"Please rename {article_html_path} to {title_as_filename}")
                     exit(1)
 
-                subprocess.run(
-                    ["pandoc", article_md_path, "-o", article_html_pandoc_path])
+                content_as_html = markdown_to_html(article_md_path)
+
                 print(f"Creating {article_html_path}")
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(
@@ -94,19 +112,22 @@ def main():
                         creation_date_str=date_to_str(creation_date),
                         modification_date_str=date_to_str(modification_date),
                         description=article_yaml['description'],
-                        content=get_file_content(article_html_pandoc_path),
+                        content=content_as_html,
                         rawLink=article_md_path
                     ))
 
-                os.remove(article_html_pandoc_path)
                 articles.append({
                     "title": article_yaml['title'],
+                    "content_as_html": content_as_html,
                     "description": article_yaml['description'],
                     "path": article_html_path[article_html_path.find("target/") + 7:],
                     "creation_date": creation_date,
                     "modification_date": modification_date
                 })
 
+    #
+    # Creating index and sitemap
+    #
     articles.sort(key=lambda a: a['creation_date'], reverse=True)
 
     print(f"Creating index.html")
@@ -116,12 +137,24 @@ def main():
             title="Accueil"
         ))
 
+    print(f"Creating dump.html")
+    # Allows during dev to extract the content to the grammar checker of your choice
+    print(os.environ)
+    if "COMPILATION_MODE" in os.environ and os.environ["COMPILATION_MODE"] == "DEV":
+        with open("target/dump.html", 'w', encoding='utf8') as stream:
+            stream.write(j2_env.get_template('template/dump.j2.html').render(
+                articles=articles
+            ))
+
     print(f"Creating sitemap.xml")
     with open("target/sitemap.xml", 'w', encoding='utf8') as stream:
         stream.write(j2_env.get_template('template/sitemap.j2.xml').render(
             articles=articles,
         ))
 
+    #
+    # Add static content
+    #
     copy_tree("static", "target")
 
 

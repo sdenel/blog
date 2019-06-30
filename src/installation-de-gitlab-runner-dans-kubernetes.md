@@ -5,7 +5,7 @@
     
 # Pourquoi Gitlab Runner dans Kubernetes ?
 * gitlab-runner peut :
-    * Etre instancié dans Kubernetes (facilite le monitoring, facilite le transfert de droits sur le cluster via un service account)
+    * Être instancié dans Kubernetes (facilite le monitoring, facilite le transfert de droits sur le cluster via un service account)
     * Instancier les jobs dans Kubernetes (facilite la scalabilité)
 * Dans mon cas : c'est le seul moyen (simple) de permettre aux jobs de joindre l'API Server de Kubernetes
 

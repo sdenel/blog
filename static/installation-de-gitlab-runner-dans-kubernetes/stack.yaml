@@ -72,7 +72,7 @@ spec:
           name: gitlab-runner
 ---
 #
-# Minio : une unique instance, sans persistance des données (vocation à etre utilisé en tant que cache)
+# Minio : une unique instance, sans persistance des données (vocation à être utilisé en tant que cache)
 #
 apiVersion: v1
 kind: Service
@@ -119,8 +119,8 @@ spec:
 ---
 #
 # Isolation des pods du namespace :
-# Les pods de ce namespace ne doivent pas pouvoir accéder au reste du cluster (IPs privées) excepté à l'API Server
-# (en cas d'utilisation de la CICD de Gitlab pour effectuer des déploiements en interne au cluster)
+# Les pods de ce namespace ne doivent pas pouvoir accéder au reste du cluster (IPs privées) excepté :
+# - A l'API Server, en cas d'utilisation de la CICD de Gitlab pour effectuer des déploiements en interne au cluster
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -144,6 +144,8 @@ spec:
           port: 80 # http
         - protocol: TCP
           port: 443 # https
+        - protocol: TCP
+          port: 22 # SSH
         - protocol: TCP
           port: 6443 # API Server
     - to:

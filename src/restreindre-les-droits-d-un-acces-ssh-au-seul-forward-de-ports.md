@@ -26,4 +26,6 @@ Match User limited-user
 # Pour une clé : directement dans le fichier .ssh/authorized_keys
 ```
 command="echo 'port forward is authorized with this key'",no-agent-forwarding,no-X11-forwarding,permitopen="host-1:3389",permitopen="host-2:3389" ssh-rsa...
-``` 
+```
+
+Il est également possible de restreindre à certaines IPs : https://unix.stackexchange.com/a/490120/304540

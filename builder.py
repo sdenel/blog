@@ -30,7 +30,7 @@ def title_to_filename(t):
     """
     Transforms a title into a URL compliant filename
     """
-    t = t.replace(" ", "-").replace(":", "-").replace(",", "-").replace(".", "-").replace("'", "-")
+    t = t.replace(" ", "-").replace(":", "-").replace(",", "-").replace(".", "-").replace("'", "-").replace("?", "-")
     while t.find("--") > -1:
         t = t.replace("--", "-")
     t = t.strip(".-")

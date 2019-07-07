@@ -126,10 +126,11 @@ def main():
     for root, dirs, files in os.walk("src/"):
         for file in files:
             if file.endswith(".yaml"):
+                print(f"[file={file}]")
                 article_yaml_path = os.path.join(root, file)
                 article_md_path = os.path.join(root, file[:-5] + ".md")
                 assert isfile(article_md_path), f"{article_yaml_path} found without its .md! ({article_md_path})"
-                print(article_yaml_path)
+                print(f"[article_yaml_path={article_yaml_path}]")
 
                 creation_date, modification_date = get_file_creation_modification_date(article_md_path)
 

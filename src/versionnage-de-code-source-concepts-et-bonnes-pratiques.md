@@ -40,7 +40,7 @@ Le modèle de Git est, in fine, assez simple :
     * Une référence à un commit (changement) ou deux commits (fusion).
     * Une liste de changements par rapport au commit précédent.
 * Une **branche** est une variation de la base de code.
-* Un **tag** peut également etre apposé sur un commit particulier.
+* Un **tag** peut également être apposé sur un commit particulier.
 * Chaque transfert d'un ou plusieurs commits depuis son poste local vers le serveur central s'appelle un **push**.
 * Récupérer l'état du dépôt distant en local est appelé un **fetch**. On parlera de **pull** lorsque le fetch est suivi d'une fusion des modifications distantes avec l'état local.
 * Usuellement, **on ne réécrit pas l'histoire sous Git** :
@@ -65,7 +65,7 @@ L'inverse amène des problèmes tels que, par exemple, des tests lents provocant
 **Git permet de créer et fusionner facilement les branches**. Cette facilité est évidemment très pratique, mais amène son lot de questionnements méthodologiques. La méthodologie la plus connue est le workflow [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/) et une extension de Git est même disponible pour faciliter les commandes du quotidien. Quelques nuances sont cependant à apporter à cette méthodologie :
 
 #### Mise en production
-**Le modèle de branche concernant la mise en production doit etre adapté à votre méthode de livraison**, actuelle et idéale. Il est absurde de considérer la même méthodologie pour une application livrée à des clients via une installation (client lourd), une application web nécessitant une interruption de service pour être mise à jour, et une application "nouvelle génération" permettant des mises à jour sans interruption de service.
+**Le modèle de branche concernant la mise en production doit être adapté à votre méthode de livraison**, actuelle et idéale. Il est absurde de considérer la même méthodologie pour une application livrée à des clients via une installation (client lourd), une application web nécessitant une interruption de service pour être mise à jour, et une application "nouvelle génération" permettant des mises à jour sans interruption de service.
 
 Difficile d'aller plus loin dans cet article à ce sujet : la bonne méthodologie est la plus simple, mais des contraintes (livraison douloureuse, passage devant une commission pour valider les changements...) peuvent obliger à considérer une méthodologie telle que que Git Flow.
 
@@ -86,9 +86,10 @@ Cette méthode de travail permet de ne proposer les modifications au projet que 
 
 # Autres
 ## Backlog...
+* Fusion de branche : fast forward ou non (voir [Tentative d'explication des Fast-Forward sous Git](https://tech.m6web.fr/tentative-d-explication-des-fast-forward-sous-git))
 * Comment éviter les problèmes de fin de ligne entre Windows et Linux ?
 * Comment régler son IDE pour éviter les changements perpétuels d'indentation
-* Comment régler Gitlab et consors pour refuser le push de charactères remssemblant à un mot de passe ?
+* Comment régler Gitlab et consors pour refuser le push de caractères ressemblant à un mot de passe ?
 * Quels logiciels pour avoir une interface graphique ? SourceTree, Tortoise, ...
 * Détailler (ou pas) la possibilité de ne pas faire des features branch, mais de faire des clone de repo en entier. Utilisé en permanence en Open Source, mais aussi en entreprise dans certains contextes.
 * Poids maximum d'un projet Git : ~1Go. Au delà de ~100Mo, c'est déjà douloureux.

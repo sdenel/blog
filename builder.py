@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# To launch doctests: python3.7 -m doctest builder.py
 import datetime
 import os
 import shutil
@@ -7,18 +8,12 @@ import subprocess
 from pprint import pprint
 
 import time
-import ruamel.yaml as yaml
-import jinja2
-import unidecode
+
 from distutils.dir_util import copy_tree
 import locale
 from os.path import isfile
 
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
-
-if os.path.exists("target"):
-    shutil.rmtree("target")
-os.mkdir("target")
 
 
 def get_file_content(p):
@@ -26,10 +21,57 @@ def get_file_content(p):
         return stream.read()
 
 
+def extract_title_id_and_name(html):
+    """
+    >>> extract_title_id_and_name(" id='toto'>tata</...>.")
+    ('toto', 'tata')
+    >>> extract_title_id_and_name(' id="toto" ...>tata</....')
+    ('toto', 'tata')
+    >>> extract_title_id_and_name(' id="toto" ...>tata</....></fs/>fs</')
+    ('toto', 'tata')
+    """
+    # TODO: A regex might be more clean here.
+    # TODO: Is this function slow? If so, improve it.
+    section_id = html \
+        .split("id")[1] \
+        .split("=")[1] \
+        .lstrip("""'" """) \
+        .split("'")[0].split('"')[0]
+    section_name = html \
+        .split(">")[1] \
+        .split("<")[0]
+    return section_id, section_name
+
+
+def build_menu_inner(html, title_level):
+    """
+    Extract a menu from HTML
+    TODO: extract HTML and export a structure instead (id it does improve something to readability/maintainability.)
+    """
+    if html.find(f"<h{title_level} ") == -1:
+        return ""
+    else:
+        sections = html.split(f"<h{title_level} ")
+
+        menu_html = ""
+        for section in sections[1:]:
+            (section_id, section_name) = extract_title_id_and_name(section)
+            menu_html += f"<li><a href='#{section_id}'>" + \
+                         section_name + \
+                         build_menu_inner(section, title_level + 1) + \
+                         "</a></li>\n"
+        return "<ul>" + menu_html + "</ul>\n"
+
+
+def build_menu(html):
+    return f"<div id='article_menu'>\n{build_menu_inner(html, 1)}\n</div>"
+
+
 def title_to_filename(t):
     """
     Transforms a title into a URL compliant filename
     """
+    import unidecode
     t = t.replace(" ", "-").replace(":", "-").replace(",", "-").replace(".", "-").replace("'", "-").replace("?", "-")
     while t.find("--") > -1:
         t = t.replace("--", "-")
@@ -69,6 +111,13 @@ def markdown_to_html(md_path):
 
 
 def main():
+    import ruamel.yaml as yaml
+    import jinja2
+
+    if os.path.exists("target"):
+        shutil.rmtree("target")
+    os.mkdir("target")
+
     articles = []
     # os.mkdir("target")
     j2_env = jinja2.Environment(loader=jinja2.FileSystemLoader("."), trim_blocks=True)
@@ -105,6 +154,8 @@ def main():
 
                 content_as_html = markdown_to_html(article_md_path)
 
+                menu_as_html = build_menu(content_as_html)
+
                 print(f"Creating {article_html_path}")
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(
@@ -113,7 +164,8 @@ def main():
                         modification_date_str=date_to_str(modification_date),
                         description=article_yaml['description'],
                         content=content_as_html,
-                        rawLink=article_md_path
+                        rawLink=article_md_path,
+                        menu_as_html=menu_as_html
                     ))
 
                 articles.append({

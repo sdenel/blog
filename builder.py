@@ -135,9 +135,9 @@ def build_references(html):
         p += 1
     references_html = ""
     for cnt, reference in enumerate(references, start=1):
-        references_html += f"<li id='#reference-{cnt}'><a href='reference-to-{cnt}'>{cnt}</a> - {reference[0]} :"
+        references_html += f"<li id='reference-{cnt}'><a href='#reference-to-{cnt}'>{cnt}</a> - {reference[0]} : "
         if is_url(reference[1]):
-            references_html += f"<a href='{reference[1]}' target='_blank'>{reference[1]}</a></li>"
+            references_html += f"<a href='#{reference[1]}' target='_blank'>{reference[1]}</a></li>"
         else:
             references_html += f"{reference[1]}</li>"
         reference_str = f"[{reference[0]}][{reference[1]}]"

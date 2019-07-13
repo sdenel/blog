@@ -100,7 +100,7 @@ def add_roman_to_main_titles(html):
     html2 = html_splits[0]
     for cnt, html_split in enumerate(html_splits[1:]):
         p = html_split.find(">")
-        html_split = html_split[:p+1] + f"{int_to_roman(cnt+1)}. "+html_split[p+1:]
+        html_split = html_split[:p + 1] + f"{int_to_roman(cnt + 1)}. " + html_split[p + 1:]
         html2 += TAG + html_split
     return html2
 
@@ -182,16 +182,19 @@ def get_file_creation_modification_date(f):
     Get the date of the creation and latest modification of a file, according to git.
     Output: a tuple of of dates in the Python datetime format.
     """
-    git_process = subprocess.run(f"git log --date=iso --diff-filter=A -- {f}".split(" "), stdout=subprocess.PIPE)
+    cmd = f"git log --date=iso -- {f}"
+    # print(cmd)
+    git_process = subprocess.run(cmd.split(" "), stdout=subprocess.PIPE)
     stdout = git_process.stdout.decode('utf-8')
     lines = stdout.split("\n")
+    # print(lines)
     dates_raw = [x for x in lines if x.startswith("Date:")]
     # "Date:   2019-05-01 20:26:47 +0200" -> "2019-05-01 20:26:47 +0200"
     dates_str = [x[x.find(':') + 1:].strip() for x in dates_raw]
     if len(dates_str) == 0:  # The file is not commited yet
         dates_str = "2099-05-01 20:26:47 +0200", "2099-05-01 20:26:47 +0200"
     print(dates_str)
-    return Date(dates_str[0]), Date(dates_str[-1])
+    return Date(dates_str[-1]), Date(dates_str[0])
 
 
 def markdown_to_html(md_path):

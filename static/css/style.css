@@ -18,8 +18,10 @@ body {
     padding: 0em 1em 0px;
     margin: auto;
     /*padding-top: 0px;*/
-    max-width: 54em;
+    max-width: 58em;
     background: #fefefe;
+    border-left: 1px #0b5f74 solid;
+    border-right: 1px #0b5f74 solid;
 }
 
 
@@ -94,7 +96,7 @@ h1, h2, h3, h4, h5, h6, h1 a, h1 a:visited {
 
 h1 {
     font-size: 1.8em;
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 h2 {
@@ -365,7 +367,7 @@ em {
 }
 
 #article_menu {
-    border: 1px #505050 solid;
+    border: 1px #0b5f74 solid;
     font-size: small;
     width: fit-content;
     line-height: 110%;

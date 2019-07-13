@@ -67,7 +67,7 @@ Cette méthode de travail permet de ne proposer les modifications au projet que 
     * Ce moment de **revue de code** est préférablement un **moment de partage (et non une validation)** effectuée entre pairs (pour éviter les points de contention : la **validation d'une merge request doit s'effectuer extrêmement rapidement**), dans un objectif de progrès de l'application et des développeurs. **Le progrès est plus important que l'égo !**
 * Mais lorsqu'un unique développeur travaille sur le projet, faire des features branches revient la plupart du temps à s'infliger inutilement une perte de productivité. Des exceptions existent : fusion automatique lorsque le code est validé par des tests, validation par un tiers avant la fusion...
 * Dans tous les cas, une feature branch doit avoir une **durée de vie extrêmement courte (de quelques heures à deux jours de travail)** sous peine de s'infliger une complexité de gestion qui n'est nullement créatrice de valeur. Lorsque, exceptionnellement, une fonctionnalité nécessite de vivre dans une branche pendant plusieurs jours / semaines, il est primordial d'effectuer fréquemment un **rebase** depuis la branche principale. Traiter les divergences au plus tôt et par petits lots évite de ne plus rien comprendre aux changements. Et d'un point de vue qualité, [des revues de code fréquentes sur des petits lots sont plus constructives][Ask a programmer to review ten lines of code, and he'll find ten issues. Ask him to do five hundred lines, and he'll say it looks good. (The DevOps Handbook, p255)].
-* Technique de fusion : [désactiver le fast-forward][https://nvie.com/posts/a-successful-git-branching-model/#incorporating-a-finished-feature-on-develop] sur le serveur central. Cela empeche les commits de la feature branch d'être simplement reportés sur la branche principale, et force la création d'un commit de merge spécifique.
+* Technique de fusion : [désactiver le fast-forward][https://nvie.com/posts/a-successful-git-branching-model/#incorporating-a-finished-feature-on-develop] sur le serveur central. Cela empêche les commits de la feature branch d'être simplement reportés sur la branche principale, et force la création d'un commit de merge spécifique.
     * La lisibilité de l'arbre de modifications est meilleure
     * Il est plus facile pour revenir en arrière
     * Cela permet d'utiliser les commits sur les features branchs sans réfléchir à l'impact : pour créer des points de retour, lancer un pipeline de tests automatiques...
@@ -88,13 +88,13 @@ Cette méthode de travail permet de ne proposer les modifications au projet que 
 
 #### Une seule version existe en production
 * Cette configuration correspond à **une part grandissante des applications** : la tendance est de ne plus livrer de clients lourds, qui sont complexes à maintenir, et de privilégier les applications web et la fourniture de service dits "managés" (hébergés par l'entreprise qui développe le produit).
-* Cette configuration rend possible des processus de livraison plus légèrs :
+* Cette configuration rend possible des processus de livraison plus légers :
     * Si vos utilisateurs ont besoin d'être tenus au courant des mises à jour, Versionnez vos mises en production (MAJOR.MINOR est suffisant).
     * Sinon, préférer un **unique compteur de version vVERSION**.
-    * Dans certains cas, il est même possible de ne pas réflechir au versionnage : la simple arrivée d'un commit sur la branche principale peut signifier une mise en production (idéalement automatique)
+    * Dans certains cas, il est même possible de ne pas réfléchir au versionnage : la simple arrivée d'un commit sur la branche principale peut signifier une mise en production (idéalement automatique)
     
 La gestion des environnement de préproduction dépend là aussi des cas :
-* Si vous etes en capacité de créer des environnements de préproduction éphémères, vous pouvez en créer un par feature branch, qui sera détruit lors de la fusion.
+* Si vous êtes en capacité de créer des environnements de préproduction éphémères, vous pouvez en créer un par feature branch, qui sera détruit lors de la fusion.
 
 
 ## Quelques bonnes pratiques liées à Git

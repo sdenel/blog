@@ -1,3 +1,4 @@
 title: Restreindre les droits d'un accès SSH au seul forward de ports
 description: Mémo sur comment restreindre les droits d'un accès SSH (au niveau de l'user ou de la clé SSH) au simple transfert de port
 categories: memo
+writersIds: sdenel

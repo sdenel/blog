@@ -1,3 +1,4 @@
 title: IPTables - Bloquer tous les ports en entrée excepté 22, 80, 443...
 description: Mes notes pour fermer les portes et les fenêtres, même en l'absence d'un firewall externe.
 categories: memo
+writersIds: sdenel

@@ -1,3 +1,7 @@
 title: "Versionnage de code source : concepts et bonnes pratiques"
 description: Les bonnes pratiques au moment de versionner son code source, en particulier sous Git.
 categories: concepts
+writersIds: sdenel
+reviewersIds:
+  - plafievre
+  - promanens

@@ -14,6 +14,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/bash.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/yaml.min.js"></script>
 
+<meta property="og:locale" content="fr_FR"/>
+<meta property="og:type" content="article"/>
+<meta property="og:site_name" content="Blog de Simon Denel"/>
+<meta property="article:published_time" content="{{creation_date.date}}"/>
+<meta property="article:modified_time" content="{{modification_date.date}}"/>
+
 
 <script>
     $(function () {
@@ -38,12 +44,24 @@
 <a href="/"/>Accueil</a>
 <h1 id="article-main-title">{{title}}</h1>
 <div id="menu">
-    Auteurs : <a href="https://github.com/sdenel/" target="_blank" rel="noopener">Simon Denel</a> | Création le
-    {{creation_date_str}} | dernière modification le {{modification_date_str}}<br/><a href="#"
-                                                                                      onclick="window.print();">Imprimer</a>
-    | <a
-        href="https://github.com/sdenel/blog/tree/master/{{rawLink}}" target="_blank" rel="noopener">Proposer une
-    amélioration sur Github</a>
+    {% if writers|length == 1 %}Auteur{% else %}Auteurs{% endif %} :
+    {% for writer in writers %}
+    <a href="{{writer.link}}" target="_blank" rel="noopener">{{writer.fullname}}</a>{{ "," if not loop.last }}
+    {% endfor %}{% if reviewers|length > 0 %}
+    |
+    {% if reviewers|length == 1 %}Relecteur{% else %}Relecteurs{% endif %} :
+    {% for reviewer in reviewers %}
+    <a href="{{reviewer.link}}" target="_blank" rel="noopener">{{reviewer.fullname}}</a>{{ "," if not loop.last }}
+    {% endfor %}{% endif %}
+    | Création le
+    {{creation_date.as_date()}} | dernière modification le {{modification_date.as_date()}}<br/>
+    <a href="#"
+       onclick="window.print();">&#128424;Imprimer</a>
+    |
+    <a
+            href="https://github.com/sdenel/blog/tree/master/{{rawLink}}" target="_blank" rel="noopener">
+        <img src="img/GitHub-Mark-32px.png" style="height:1.0em; vertical-align: middle; padding-right: 3px;"/>
+        Proposer une amélioration sur Github</a>
 </div>
 {{ menu_as_html }}
 {{content}}

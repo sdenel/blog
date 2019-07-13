@@ -50,8 +50,9 @@ spec:
     # TODO : sortir la version dans un header ?
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 2
-      maxUnavailable: 0%
+      maxSurge: 200%
+      maxUnavailable: 1
+  replicas: 2
   template:
     metadata:
       labels:

@@ -39,9 +39,9 @@ Le modèle de Git est, in fine, assez simple :
     * Un commentaire décrivant l'objectif du commit. La première ligne de ce commentaire est le titre.
     * Une référence à un commit (changement) ou deux commits (fusion).
     * Une liste de changements par rapport au commit précédent.
+* Chaque transfert d'un ou plusieurs commits depuis son poste local vers le serveur central s'appelle un *push*. **Contrairement à SVN, les commits ne sont transmis au serveur central que lors du push !**
 * Une *branche* est une variation de la base de code. Chaque repository dispose à **minima de une branche**, dite branche principale (souvent nommée *master*).
 * Un *tag* peut également être apposé sur un commit particulier. **Les tags sont usuellement utilisés pour colorer les commits qui correspondent à une mise en production.**
-* Chaque transfert d'un ou plusieurs commits depuis son poste local vers le serveur central s'appelle un *push*. **Contrairement à SVN, les commits ne sont transmis au serveur central que lors du push !**
 * Récupérer l'état du dépôt distant en local est appelé un *fetch*. On parlera de *pull* lorsque le fetch est suivi d'une fusion en local des modifications distantes avec l'état local.
 * Usuellement, **on ne réécrit pas l'histoire sous Git** :
     * Sauf sur "sa branche" et/ou en local.
@@ -83,7 +83,7 @@ Cette méthode de travail permet de ne proposer les modifications au projet que 
     * Incrémenter MAJEUR pour des changements non rétrocompatibles.
     * Incrémenter MINEUR pour des ajouts de fonctionnalités rétrocompatibles.
     * Incrémenter CORRECTIF pour des corrections d’anomalies rétrocompatibles.
-* Exemple : [kubernetes](https://github.com/kubernetes/kubernetes/branches)) utilise ces conventions.
+* Exemple : [kubernetes](https://github.com/kubernetes/kubernetes/branches) utilise ces conventions.
 * Créer **une branche spécifique par MAJEUR.MINEUR nommée release-MAJEUR.MINEUR** (on parle de *release branch*). En règle générale, seule la dernière release branch en date fait l'objet d'ajout de fonctionnalités.
 
 #### Une seule version existe en production
@@ -94,7 +94,7 @@ Cette méthode de travail permet de ne proposer les modifications au projet que 
     * Dans certains cas, il est même possible de ne pas réfléchir au versionnage : la simple arrivée d'un commit sur la branche principale peut signifier une mise en production (idéalement automatique)
     
 La gestion des environnement de préproduction dépend là aussi des cas :
-* Si vous êtes en capacité de créer des environnements de préproduction éphémères, vous pouvez en créer un par feature branch, qui sera détruit lors de la fusion.
+Si vous êtes en capacité de créer des environnements de préproduction éphémères, vous pouvez en créer un par feature branch, qui sera détruit lors de la fusion.
 
 
 ## Quelques bonnes pratiques liées à Git
@@ -133,7 +133,7 @@ Git est un outil extrêmement puissant. Sans rentrer dans le détail, voici quel
 * **git bissect** : trouver quel commit a introduit un bug par dichotomie.
 * **Signer ses commits** à l'aide d'une clé GPG. C'est une pratique davantage destinée au monde de l'Open Source. 
 * **clone partiel** : cela permet de disposer du dernier état d'un projet sans récupérer tout l'historique. C'est particulièrement pratique pour de l'automatisation, mais c'est une mauvaise odeur si vous en avez besoin pour travailler (pourquoi votre projet est-il si lourd ?) : `git clone --depth 1 https://path/to/repo/foo.git -b bar`
-* **Git LFS (Large File Storage)** Nuancer le stockage de binaires lourds grace à QQQ. Evite de récupérer les fichiers lourds lors d'un clone. Mais mise en place manuelle.
+* **Git LFS (Large File Storage)** permet de créer des pointeurs vers des fichiers lourds (binaires).
 
 
 ## Backlog...

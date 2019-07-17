@@ -141,6 +141,9 @@ Git est un outil extrêmement puissant. Sans rentrer dans le détail, voici quel
     * Comment éviter les problèmes de fin de ligne entre Windows et Linux ?
     * Comment régler son IDE pour éviter les changements perpétuels d'indentation ?
     * Comment gérer les environnement de préproduction qui ne font pas partie du cycle de Release Management ? Avec une branche spécifique ?
+* Pratiques liées à la CI/CD :
+    * Stocker les pipelines sous forme textuelle, dans le dépot applicatif (Bamboofile, Jenkinsfile, ...)
+    * Des problèmes de factorisation de code vont apparaitre pour la CI/CD, et seront exacerbés dans une approche micro-service : il est possible (a minima sous Jenkins et Gitlab) de factoriser au maximum dans une shared library.
 * Comment régler Gitlab et consors pour refuser le push de caractères ressemblant à un mot de passe ?
 * Quels logiciels pour avoir une interface graphique ? SourceTree, Tortoise, ...
 * Détailler (ou pas) la possibilité de ne pas faire des features branch, mais de faire des clones de repository en entier. Utilisé en permanence en Open Source, mais aussi en entreprise dans certains contextes.

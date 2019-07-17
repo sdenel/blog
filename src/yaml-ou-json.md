@@ -83,7 +83,11 @@ MAVEN_OPTS: >-
 # Backlog...
 
 * Détailler les autres fonctionnalités avancées de Yaml :
-  * YAML anchors pour éviter la duplication : [ https://docs.gitlab.com/ee/ci/yaml/#anchors]( https://docs.gitlab.com/ee/ci/yaml/#anchors)
+  * YAML anchors pour éviter la duplication : [https://docs.gitlab.com/ee/ci/yaml/#anchors]( https://docs.gitlab.com/ee/ci/yaml/#anchors)
+  * Mais incompatible avec, au moins, CloudFormation :
+    * "YAML aliases are not allowed in CloudFormation templates"
+    * (However, you can use YAML anchors in imported template snippets.)[https://github.com/awslabs/serverless-application-model/issues/228#issuecomment-350425716]
+    * "aws cloudformation package followed by aws cloudformation deploy to support Anchors"
 * Quels outils pour la conversion hors ligne (pour des raisons de confidentialité) pour la conversion JSON <-> YAML ?
 * Comment marier l'utilitaire jq et du YAML ?
     * yq apparaît moins développé : [yq](https://yq.readthedocs.io/en/latest/)

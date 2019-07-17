@@ -2,3 +2,4 @@ title: YAML ou JSON ?
 description: "Ma conviction : lorsque vous avez le choix, et en particulier pour un fichier avec valeur de code source, utilisez le YAML. Explications."
 categories: convictions
 writersIds: sdenel
+illustration: png

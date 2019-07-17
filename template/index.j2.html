@@ -1,15 +1,22 @@
 {% extends 'template/template.j2.html' %}
 {% block content %}
 <style>
-    p:not(:last-child) {
-        padding-bottom: 10px;
+    .article-item:not(:last-child) {
+        padding-bottom: 5px;
         border-bottom: 1px #B0B0B0 solid;
+        clear: both;
+        /*overflow: hidden;*/
     }
 </style>
 <div>
     {% for article in articles %}
-    <h1><a href="{{article["path"]}}">{{article["title"]}}</a></h1>
-    <p>{{article["description"]}}</p>
+    <div class="article-item" style="overflow: auto">
+        <a href="{{article.path}}">
+            <img src="{{article.illustration_path}}" style="float:left; padding-top:5px; padding-right:20px;width:200px; max-height: 150px"/>
+        </a>
+        <h1><a href="{{article.path}}">{{article.title}}</a></h1>
+        <p>{{article.description}}</p>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

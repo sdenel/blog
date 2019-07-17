@@ -263,6 +263,7 @@ def main():
 
                 pprint(article_yaml["title"])
 
+                article_path = article_md_path[4:-3]
                 article_html_path = os.path.join("target", article_md_path[4:-3] + ".html")
 
                 #
@@ -280,6 +281,10 @@ def main():
 
                 menu_as_html = build_menu(content_as_html)
 
+                illustration_path = ("illustrations/" + article_path + '.' + article_yaml['illustration']) \
+                    if 'illustration' in article_yaml \
+                    else "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="  # Blank image
+
                 print(f"Creating {article_html_path}")
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(
@@ -291,7 +296,8 @@ def main():
                         rawLink=article_md_path,
                         menu_as_html=menu_as_html,
                         writers=[contributors[c] for c in writers_ids],
-                        reviewers=[contributors[c] for c in reviewers_ids]
+                        reviewers=[contributors[c] for c in reviewers_ids],
+                        illustration_path=illustration_path
                     ))
 
                 articles.append({
@@ -300,7 +306,8 @@ def main():
                     "description": article_yaml['description'],
                     "path": article_html_path[article_html_path.find("target/") + 7:],
                     "creation_date": creation_date,
-                    "modification_date": modification_date
+                    "modification_date": modification_date,
+                    "illustration_path": illustration_path
                 })
 
     #

@@ -63,7 +63,10 @@
         <img src="img/GitHub-Mark-32px.png" style="height:1.0em; vertical-align: middle; padding-right: 3px;"/>
         Proposer une amélioration sur Github</a>
 </div>
-<p style="font-weight: bold">{{ description }}</p>
+<div style="overflow: auto">
+    <img src="{{illustration_path}}" style="float: left; padding-right: 10px;"/>
+    <p style="font-weight: bold">{{ description }}</p>
+</div>
 {{ menu_as_html }}
 {{content}}
 {% endblock %}

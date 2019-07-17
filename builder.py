@@ -63,7 +63,11 @@ def build_menu_inner(html, title_level):
 
 
 def build_menu(html):
-    return f"<div id='article_menu'>\n{build_menu_inner(html, 2)}\n</div>"
+    content = build_menu_inner(html, 2)
+    if len(content) > 0:
+        return f"<div id='article_menu'>\n{content}\n</div>"
+    else:
+        return ""
 
 
 def is_url(url):

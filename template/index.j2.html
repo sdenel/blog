@@ -14,7 +14,7 @@
         <a href="{{article.path}}">
             <img src="{{article.illustration_path}}" style="float:left; padding-top:5px; padding-right:20px;width:200px; max-height: 150px"/>
         </a>
-        <h1><a href="{{article.path}}">{{article.title}}</a></h1>
+        <h1><a href="{{article.path}}">{% if article.is_draft %}[Ébauche] {% endif %}{{article.title}}</a></h1>
         <p>{{article.description}}</p>
     </div>
     {% endfor %}

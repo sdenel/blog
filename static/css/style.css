@@ -108,15 +108,17 @@ h3 {
 }
 
 h4 {
-    font-size: 1.4em;
+    font-size: 1.3em;
 }
 
 h5 {
-    font-size: 1.2em;
+    font-size: 1.0em;
+    font-weight: bold;
 }
 
 h6 {
     font-size: 1.0em;
+    font-weight: bold;
 }
 
 blockquote {
@@ -300,12 +302,12 @@ em {
         display: none;
     }
 
-    * {
-        background: transparent !important;
-        color: black !important;
-        filter: none !important;
-        -ms-filter: none !important;
-    }
+    /** {*/
+    /*    background: transparent !important;*/
+    /*    color: black !important;*/
+    /*    filter: none !important;*/
+    /*    -ms-filter: none !important;*/
+    /*}*/
 
     body {
         font-size: 12pt;
@@ -389,4 +391,34 @@ em {
     #article_menu {
         display: none;
     }
+
+    body {
+        border: 0px;
+        /*width: 100%;*/
+        max-width: 100%;
+    }
+}
+
+non, oui {
+    /*border: 1px black solid;*/
+    font-weight: bold;
+    margin: 3px;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+non {
+    color: red;
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+@media print {
+    non {
+        text-decoration: line-through;
+    }
+}
+
+oui {
+    color: green;
+    background-color: rgba(0, 255, 0, 0.1);
 }

@@ -42,7 +42,7 @@
 </script>
 
 <a href="/"/>Accueil</a>
-<h1 id="article-main-title">{{title}}</h1>
+<h1 id="article-main-title">{% if is_draft %}[Ébauche] {% endif %}{{title}}</h1>
 <div id="menu">
     {% if writers|length == 1 %}Auteur{% else %}Auteurs{% endif %} :
     {% for writer in writers %}

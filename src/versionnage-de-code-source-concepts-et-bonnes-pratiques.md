@@ -154,6 +154,10 @@ Git est un outil extrêmement puissant. Sans rentrer dans le détail, voici quel
 * Sujet avant tout méthodologique mais qui se retrouve dans Git : limiter la complexité. Pas plus de branches que nécessaire, limiter le nécessaire, limiter le Work In Progress
 * Les fonctionnalités sympas des solutions en ligne, au dela de l'interface de merge request : branches protégées, tokens et clés SSH techniques avec droits restreints et durée de vie, ...
 * Est-ce important de garder les branches principales "vertes" ? Pour quelles raisons ?
+* Introduire les conventions de Git Flow :
+    * Branches features en "feature/", ...
+    * Possibilité de créer une branche par release si il y a un risque que plusieurs releases existent en parallèle
+    * Bonne pratique : nommer la branche principale "prod" au lieu de "master"
 
 ## Références et autres liens
 Références : [[references]]

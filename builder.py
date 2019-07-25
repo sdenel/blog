@@ -8,6 +8,7 @@ import subprocess
 import time
 from distutils.dir_util import copy_tree
 from os.path import isfile
+import string
 from pprint import pprint
 
 from urllib.parse import urlparse
@@ -109,6 +110,46 @@ def add_roman_to_main_titles(html):
     return html2
 
 
+def add_numbers_to_subtitles(html):
+    """
+    >>> add_numbers_to_subtitles('<h3 ...>a</h3><h3 ...>b</h3><h2>...</h2><h3>c</h3>')
+    '<h3 ...>1. a</h3><h3 ...>2. b</h3><h2>...</h2><h3>1. c</h3>'
+    """
+    TAG = "<h3"
+    TAG_UPPER = "<h2"
+    html_splits = html.split(TAG)
+    html2 = html_splits[0]
+    cnt = 0
+    for html_split in html_splits[1:]:
+        p = html_split.find(">")
+        html_split = html_split[:p + 1] + f"{str(cnt + 1)}. " + html_split[p + 1:]
+        html2 += TAG + html_split
+        cnt += 1
+        if TAG_UPPER in html_split:
+            cnt = 0
+    return html2
+
+
+def add_letter_to_subtitles(html):
+    """
+    >>> add_letter_to_subtitles('<h4 ...>a</h4><h4 ...>b</h4><h3 ...>toto</h3><h4 ...>x</h4>')
+    '<h4 ...>a. a</h4><h4 ...>b. b</h4><h3 ...>toto</h3><h4 ...>a. x</h4>'
+    """
+    TAG = "<h4"
+    TAG_UPPER = "<h3"
+    html_splits = html.split(TAG)
+    html2 = html_splits[0]
+    cnt = 0
+    for html_split in html_splits[1:]:
+        p = html_split.find(">")
+        html_split = html_split[:p + 1] + f"{string.ascii_lowercase[cnt]}. " + html_split[p + 1:]
+        html2 += TAG + html_split
+        cnt += 1
+        if TAG_UPPER in html_split:
+            cnt = 0
+    return html2
+
+
 def reduce_titles(html):
     """
     h1 -> h2, h2->h3, ...
@@ -121,9 +162,12 @@ def reduce_titles(html):
     return html
 
 
-def build_references(html):
+def extract_references(html):
     """
-    Return the HTML, with references inserted where the [[references]] tag is
+    >>> extract_references("...[a][b][c]...")
+    [{'raw': '[a][b][c]', 'text': 'a', 'link_name': 'b', 'link': 'c'}]
+    >>> extract_references("...[e][f]...")
+    [{'raw': '[e][f]', 'text': 'e', 'link_name': 'e', 'link': 'f'}]
     """
     references = []
     p = None
@@ -131,23 +175,53 @@ def build_references(html):
         p = html.find("][", p)
         if p == -1:
             break
-        potential_url_end_pos = html.find("]", p + 2)
-        if potential_url_end_pos > -1:
-            potential_url = html[p + 2:potential_url_end_pos]
-            title_start_pos = html[:p].rfind("[") + 1
-            references.append((html[title_start_pos:p], potential_url))
-        p += 1
+        data2_end_pos = html.find("]", p + 2)
+        if data2_end_pos > -1:
+            text_start_pos = html[:p].rfind("[") + 1
+            text = html[text_start_pos:p]
+            data2 = html[p + 2:data2_end_pos]
+            if html[data2_end_pos + 1] == "[":
+                link_name = data2
+                pos_end = html.find("]", data2_end_pos + 2)
+                link = html[data2_end_pos + 2:pos_end]
+            else:
+                link = data2
+                link_name = text
+                pos_end = data2_end_pos
+            references.append(
+                {
+                    "raw": html[text_start_pos - 1:pos_end + 1],
+                    "text": text,
+                    "link_name": link_name,
+                    "link": link
+                }
+            )
+        p = pos_end + 1
+    return references
+
+
+def build_references(html):
+    """
+    Return the HTML, with references inserted where the [[references]] tag is
+    """
+    references = extract_references(html)
     references_html = ""
     for cnt, reference in enumerate(references, start=1):
-        references_html += f"<li id='reference-{cnt}'><a href='#reference-to-{cnt}'>{cnt}</a> - {reference[0]} : "
-        if is_url(reference[1]):
-            references_html += f"<a href='#{reference[1]}' target='_blank'>{reference[1]}</a></li>"
+        raw = reference['raw']
+        link = reference['link']
+        text = reference['text']
+        link_name = reference['link_name']
+        references_html += f"<li id='reference-{cnt}'><a href='#reference-to-{cnt}'>{cnt}</a> - {link_name} : "
+        if is_url(reference['link']):
+            references_html += f"<a href='#{link}' target='_blank'>{link}</a></li>"
         else:
-            references_html += f"{reference[1]}</li>"
-        reference_str = f"[{reference[0]}][{reference[1]}]"
+            references_html += f"{link}</li>"
+        reference_str = f"[{text}][{link}]"
         assert reference_str.count(reference_str) == 1
-        html = html.replace(reference_str,
-                            f"<a id='reference-to-{cnt}' href='#reference-{cnt}'>{reference[0]}<sup>{cnt}</sup></a>")
+        html = html.replace(
+            raw,
+            f"{text}<a id='reference-to-{cnt}' href='#reference-{cnt}'><sup>{cnt}</sup></a>"
+        )
 
     if len(references) > 0:
         assert html.count("[[references]]") == 1
@@ -277,6 +351,8 @@ def main():
                 content_as_html = markdown_to_html(article_md_path)
                 content_as_html = reduce_titles(content_as_html)
                 content_as_html = add_roman_to_main_titles(content_as_html)
+                content_as_html = add_numbers_to_subtitles(content_as_html)
+                content_as_html = add_letter_to_subtitles(content_as_html)
                 content_as_html = build_references(content_as_html)
 
                 menu_as_html = build_menu(content_as_html)
@@ -285,10 +361,12 @@ def main():
                     if 'illustration' in article_yaml \
                     else "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="  # Blank image
 
+                is_draft=article_yaml['draft'] if 'draft' in article_yaml else False
                 print(f"Creating {article_html_path}")
                 with open(article_html_path, 'w', encoding='utf8') as stream:
                     stream.write(j2_env.get_template('template/article.j2.html').render(
                         title=article_yaml['title'],
+                        is_draft=is_draft,
                         creation_date=creation_date,
                         modification_date=modification_date,
                         description=article_yaml['description'],
@@ -302,6 +380,7 @@ def main():
 
                 articles.append({
                     "title": article_yaml['title'],
+                    "is_draft": is_draft,
                     "content_as_html": content_as_html,
                     "description": article_yaml['description'],
                     "path": article_html_path[article_html_path.find("target/") + 7:],

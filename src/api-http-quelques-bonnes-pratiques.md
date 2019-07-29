@@ -195,14 +195,14 @@ L'usage est de ne pas utiliser de lettres majuscules ni d'underscore dans les UR
 
 ## Autres bonnes pratiques
 
-## Authentification : utiliser un header
+### Authentification : utiliser un header
 
 Une fois l'utilisateur connecté, la preuve d'identité doit s'effectuer via des informations dans un Header (le contenu dépasse le cadre de cet article). C'est la norme, pour de bonnes raisons : 
 
 * Dans l'URL : c'est inadapté car les URLs consultées peuvent être écrites dans les logs, ce qui les rendraient sensibles alors que leur visibilité doit rester large au sein de l'organisation.
 * Dans la payload de la requête : la payload est usuellement réservée à la charge applicative.
 
-## Authentification en cas d'appels en cascade : préférer utiliser l'identité de l'utilisateur
+### Authentification en cas d'appels en cascade : préférer utiliser l'identité de l'utilisateur
 
 Dans le cas d'un appel d'API en cascade (API A appelant l'API B), il est préférable d'utiliser les credentials de l'appelant par transfert, et non des credentials techniques.
 Cela évite entre autres une élévation de privilèges par utilisation d'une procuration (ex pas l'utilisateur n'a pas le droit de supprimer un livre de la bibliothèque, mais peut y parvenir en passant par une API intermédiaire).

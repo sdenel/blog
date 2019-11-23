@@ -2,3 +2,4 @@ title: Regénérer sa clé SSH publique depuis sa clé privée
 description: Une clé publique (ex ~/.ssh/id_rsa.pub) peut être regénérée depuis la clé privée (ex ~/.ssh/id_rsa)
 categories: memo
 writersIds: sdenel
+illustration: jpg

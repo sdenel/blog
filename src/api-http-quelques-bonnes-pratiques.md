@@ -272,6 +272,8 @@ d'[annotations Java au format swagger-core][https://github.com/swagger-api/swagg
 * Postman permet à la fois de naviguer dans une API et d'[automatiser des tests][Automatiser des tests d'API avec Postman][https://www.youtube.com/watch?v=pi9MxX0HSHU&list=PLM-7VG-sgbtDD69PEPRQt13DcyN5JUZnS] 
 
 ## Backlog...
+* Double références : ok si la seconde référence n'a du sens qu'en connaissant la première ? Ex, colonne d'un Kanban
+* PUT/POST : les propriétés doivent etre un sous-ensemble des propriétés accessibles via un GET.
 * Implémenter le contrat avec précision peut se faire au fur et à mesure : exemple, renvoyer 500 en cas d'absence de la ressource mais renvoyer 404 dès que le cas d'usage se présente.
 * Renvoyer les mêmes informations sur GET /items/ que sur GET /items/uf4a ? Ou un sous ensemble ?
 * Comment amener élégamment dans un GET les informations dont on sait que l'utilisateur aura besoin (noms des auteurs d'un livre, ...)

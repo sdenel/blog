@@ -2,3 +2,4 @@ title: Installation de Gitlab-runner dans Kubernetes
 description: De l'intérêt de gérer les runners de Gitlab, ainsi qu'une stack Kubernetes pour installer gitlab-runner, avec minio pour le cache, dans un namespace dédié.
 categories: kubernetes
 writersIds: sdenel
+illustration: jpg

@@ -163,7 +163,7 @@ spec:
     - to:
         - namespaceSelector:
             matchLabels:
-              name: kube-system # kubectl label namespace/kube-system name=kube-system
+              name: kube-system # ẄARNONG! Requires kubectl label namespace/kube-system name=kube-system
           podSelector:
             matchLabels:
               k8s-app: kube-dns

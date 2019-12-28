@@ -1,17 +1,22 @@
-name: CI
+name: BUILD_AND_DEPLOY
 
 on: [push]
 
 jobs:
-  build:
+  build_and_deploy:
 
-    runs-on: ubuntu-latest
+    runs-on: sdenel/blog-builder
 
     steps:
     - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
+    - name: run builder doctests
+      run: python3 -m doctest builder.py
+    - name: Build
+      run: COMPILATION_MODE=PROD ./builder.py
+    - name: Deploy
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        pip3 install awscli
+        export AWS_ACCESS_KEY_ID="AKIAYWWIADIBMC6TI4GD" # AWS_SECRET_ACCESS_KEY is a Github secret
+        export AWS_DEFAULT_REGION="eu-west-1"
+        aws s3 sync . s3://sdenel-blog/ --delete
+        aws cloudfront create-invalidation --distribution-id E1L0TUDHUWNSDT --paths "/*"

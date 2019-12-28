@@ -15,9 +15,11 @@ jobs:
     - name: Build
       run: COMPILATION_MODE=PROD ./builder.py
     - name: Deploy
+      with:
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         pip3 install awscli
-        export AWS_ACCESS_KEY_ID="AKIAYWWIADIBMC6TI4GD" # AWS_SECRET_ACCESS_KEY is a Github secret
+        export AWS_ACCESS_KEY_ID="AKIAYWWIADIBMC6TI4GD"
         export AWS_DEFAULT_REGION="eu-west-1"
         aws s3 sync . s3://sdenel-blog/ --delete
         aws cloudfront create-invalidation --distribution-id E1L0TUDHUWNSDT --paths "/*"

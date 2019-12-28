@@ -15,7 +15,7 @@ jobs:
     - name: Build
       run: COMPILATION_MODE=PROD ./builder.py
     - name: Deploy
-      with:
+      env:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         pip3 install awscli

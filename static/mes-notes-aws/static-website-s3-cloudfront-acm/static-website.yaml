@@ -1,0 +1,121 @@
+#
+# The stack I am using to deploy my personal blog (simon.denel.ch)
+# arn:aws:acm:us-east-1:598493633026:certificate/9e8b3dd7-cab7-474a-8b70-defebf6b4bf0
+# Les couts ne sont pas dissuasifs
+# Pour aller plus loin... dans le cas DNS dans un autre account
+# Le prix n'est pas dissuasif : https://aws.amazon.com/fr/about-aws/whats-new/2010/08/31/cloudfront-adds-invalidation-feature/
+# use it directaly: lien s3 blog
+#
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Id of the Hosted Zone you want to give rights on
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
+    Properties:
+      BucketName: sdenel-blog
+      AccessControl: Private
+      PublicAccessBlockConfiguration: # TODO est-ce nécessaire vu "AccessControl: Private" ?
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: ''
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement:
+          - Action: 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub '${S3Bucket.Arn}/*'
+            Principal:
+              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-resource-cloudfront-distribution.html
+    Properties:
+      DistributionConfig: # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-distributionconfig.html
+        Aliases:
+          - simon.denel.ch # TODO param
+        # TODO cache ALL : le process de CICD inclut de nettoyer CloudFront.
+        # Ce n'est *pas* l'idéal.
+        # Mieux : il faudrait (naturellement fait par example par Angular) que les fichiers non html (js, css, ...) contiennent un hash dans leur nom
+        # CacheBehaviors: 
+        #   - CacheBehavior
+        # Comment: String
+        # CustomErrorResponses: 
+        #   - CustomErrorResponse
+        DefaultCacheBehavior: # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-defaultcachebehavior.html
+          Compress: true
+          DefaultTTL: 86400 # Anyway, we will invalidate CloudFront caches in case of update in the bucket
+          TargetOriginId: front
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        # Logging: 
+        #   Logging
+        Origins: # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html
+          - DomainName: !GetAtt S3Bucket.RegionalDomainName
+            Id: front
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        PriceClass: PriceClass_100 # https://aws.amazon.com/fr/cloudfront/pricing/
+        # Restrictions: 
+        #   Restrictions
+        ViewerCertificate: # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-viewercertificate.html
+          # TODO param
+          AcmCertificateArn: arn:aws:acm:us-east-1:598493633026:certificate/9e8b3dd7-cab7-474a-8b70-defebf6b4bf0 # An HTTPS certificate generated for your custon domain in us-east-1 region
+          SslSupportMethod: sni-only # No choice but to support SNI when using cloudfront (except by paying a lot  (~600$/month) for dedicated IPs! See https://aws.amazon.com/fr/cloudfront/pricing/
+
+  # TODO: serviceAccount avec seulement les droits sur la bucket + droits d'invalidation de CloudFront
+  # Programmatic access only
+  # # Inline policies are *not* known as a good practice for human users. But here, as we create a service account, rights are so limited that it would make no sense to create a specific group.
+  ServiceAccount:
+    Type: AWS::IAM::User # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-iam-user.html
+    Properties:
+      UserName: !Sub '${S3Bucket}-serviceaccount'
+      Policies:
+        - PolicyName: BucketAccess
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - s3:List*
+                  - s3:Get*
+                Effect: Allow
+                Resource: !GetAtt S3Bucket.Arn
+              - Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:DeleteObject
+                  - s3:DeleteObjectVersion
+                Effect: Allow
+                Resource: !Sub '${S3Bucket.Arn}/*'
+              - Action:
+                  - cloudfront:CreateInvalidation
+                Effect: Allow
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - Name: simon.denel.ch # TODO param
+          Type: CNAME
+          TTL: '3600'
+          ResourceRecords:
+            - !GetAtt CloudFrontDistribution.DomainName

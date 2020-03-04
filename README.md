@@ -1,1 +1,1 @@
-Code source de mon blog : https://simon.denel.fr/
+Code source de mon blog : https://simon.denel.ch/
